@@ -1,0 +1,65 @@
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: never
+
+spring:
+  application:
+    name: student-registry
+
+  # Zero-setup local database: H2 persisted to ./data/registry.mv.db
+  datasource:
+    url: jdbc:h2:file:./data/registry;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jackson:
+    default-property-inclusion: non_null
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  cors:
+    # Comma separated, wildcards allowed. Set APP_CORS_ALLOWED_ORIGINS in production.
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173}
+
+logging:
+  level:
+    org.hibernate.SQL: warn
+
+---
+# Activate with: SPRING_PROFILES_ACTIVE=mysql
+spring:
+  config:
+    activate:
+      on-profile: mysql
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/student_registry?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:registry}
+    password: ${DB_PASSWORD:registry}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQLDialect
